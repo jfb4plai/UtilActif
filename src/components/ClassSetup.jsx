@@ -1,6 +1,15 @@
 import { useState } from 'react'
 import { useClass } from '../shared/useClass'
 
+const TOOLS_PREVIEW = [
+  { icon: '⏱️', label: 'Minuteur' },
+  { icon: '🎲', label: 'Dés' },
+  { icon: '🎡', label: 'Roue' },
+  { icon: '📋', label: 'Consigne' },
+  { icon: '🔢', label: 'Grille' },
+  { icon: '🙋', label: 'Tours' },
+]
+
 const LEVELS = [
   '1re mat.', '2e mat.', '3e mat.',
   'P1', 'P2', 'P3', 'P4', 'P5', 'P6',
@@ -219,6 +228,18 @@ export function ClassSetup({ onDone }) {
           Réinitialiser la classe
         </button>
       </form>
+      </div>
+
+      <div className="w-full bg-[#f5f0e8] border-t border-[#e8dfd0] px-6 py-5 mt-6">
+        <p className="text-xs text-gray-400 uppercase tracking-widest mb-3 text-center">6 outils disponibles</p>
+        <div className="flex justify-around max-w-lg mx-auto">
+          {TOOLS_PREVIEW.map((t) => (
+            <div key={t.label} className="flex flex-col items-center gap-1">
+              <span className="text-3xl">{t.icon}</span>
+              <span className="text-xs text-gray-500 font-medium">{t.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
