@@ -13,17 +13,27 @@ export function Wheel({ onBack, onEditClass }) {
   const [spinning, setSpinning] = useState(false)
   const [selected, setSelected] = useState(null)
   const [history, setHistory] = useState([])
+  const [drawn, setDrawn] = useState(new Set())
+
+  const available = students.filter((s) => !drawn.has(s.id))
+  const allDrawn = students.length > 0 && available.length === 0
 
   function handleSpin() {
-    if (spinning || students.length === 0) return
+    if (spinning || available.length === 0) return
     setSpinning(true)
     setSelected(null)
     setTimeout(() => {
-      const winner = students[Math.floor(Math.random() * students.length)]
+      const winner = available[Math.floor(Math.random() * available.length)]
       setSelected(winner)
       setHistory((h) => [winner, ...h].slice(0, 5))
+      setDrawn((d) => new Set([...d, winner.id]))
       setSpinning(false)
     }, 1200)
+  }
+
+  function handleReset() {
+    setDrawn(new Set())
+    setSelected(null)
   }
 
   if (students.length === 0) {
@@ -63,13 +73,15 @@ export function Wheel({ onBack, onEditClass }) {
             spinning ? 'animate-spin' : ''
           }`}
           style={{
-            background: `conic-gradient(${students
-              .map((s, i) => `${SEGMENT_COLORS[i % SEGMENT_COLORS.length]} ${(i * 100) / students.length}% ${((i + 1) * 100) / students.length}%`)
-              .join(', ')})`,
+            background: allDrawn
+              ? '#e5e7eb'
+              : `conic-gradient(${available
+                  .map((s, i) => `${SEGMENT_COLORS[i % SEGMENT_COLORS.length]} ${(i * 100) / available.length}% ${((i + 1) * 100) / available.length}%`)
+                  .join(', ')})`,
             animationDuration: spinning ? '1s' : '0s',
           }}
         >
-          {!spinning && selected && (
+          {!spinning && selected && !allDrawn && (
             <div className="bg-white rounded-full w-32 h-32 flex items-center justify-center text-center shadow">
               <span className="font-bold text-xl text-plai-teal leading-tight px-2">
                 {selected.displayName}
@@ -78,21 +90,37 @@ export function Wheel({ onBack, onEditClass }) {
           )}
         </div>
 
-        {selected && !spinning && (
-          <p className="text-4xl font-bold text-gray-800 text-center">
-            {selected.displayName} !
+        {allDrawn ? (
+          <p className="text-2xl font-bold text-gray-500 text-center">
+            Tout le monde a participé !
           </p>
+        ) : (
+          selected && !spinning && (
+            <p className="text-4xl font-bold text-gray-800 text-center">
+              {selected.displayName} !
+            </p>
+          )
         )}
 
-        <button
-          onClick={handleSpin}
-          disabled={spinning}
-          className="bg-plai-teal text-white px-16 py-5 rounded-2xl text-3xl font-bold shadow-lg active:scale-95 transition-transform disabled:opacity-50"
-          style={{ minHeight: 'var(--touch-target)' }}
-          aria-label="Tourner"
-        >
-          {spinning ? '...' : 'Tourner'}
-        </button>
+        {allDrawn ? (
+          <button
+            onClick={handleReset}
+            className="bg-plai-orange text-white px-16 py-5 rounded-2xl text-3xl font-bold shadow-lg active:scale-95 transition-transform"
+            style={{ minHeight: 'var(--touch-target)' }}
+          >
+            Recommencer
+          </button>
+        ) : (
+          <button
+            onClick={handleSpin}
+            disabled={spinning}
+            className="bg-plai-teal text-white px-16 py-5 rounded-2xl text-3xl font-bold shadow-lg active:scale-95 transition-transform disabled:opacity-50"
+            style={{ minHeight: 'var(--touch-target)' }}
+            aria-label="Tourner"
+          >
+            {spinning ? '...' : 'Tourner'}
+          </button>
+        )}
 
         {history.length > 0 && (
           <div className="flex gap-2 flex-wrap justify-center">
