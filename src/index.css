@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --touch-target: 72px;
+  --base-font: 1rem;
+  --animation-duration: 300ms;
+  --line-height: 1.5;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  font-size: var(--base-font);
+}
+
+.high-contrast {
+  filter: contrast(1.5);
+}
+
+* {
+  min-height: unset;
+}
+
+button, [role="button"], input, select {
+  min-height: var(--touch-target);
+  min-width: var(--touch-target);
+}
