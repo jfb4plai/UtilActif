@@ -65,36 +65,75 @@ const REPLACEMENTS = [
   [/tu vas devoir/gi, 'tu dois'],
 ]
 
-// Découpe sur ponctuation forte ET connecteurs séquentiels
+// Verbes d'action courants en consigne scolaire (impératif et infinitif)
+const ACTION_VERBS = new Set([
+  'lis','lire','écris','écrire','remplis','remplir','colorie','colorier',
+  'découpe','découper','colle','coller','calcule','calculer','résous','résoudre',
+  'regarde','regarder','entoure','entourer','souligne','souligner','dessine','dessiner',
+  'réponds','répondre','trace','tracer','place','placer','range','ranger',
+  'classe','classer','trie','trier','compte','compter','mesure','mesurer',
+  'relie','relier','barre','barrer','recopie','recopier','numérote','numéroter',
+  'compare','comparer','explique','expliquer','raconte','raconter','trouve','trouver',
+  'cherche','chercher','utilise','utiliser','construis','construire','fais','faire',
+  'prends','prendre','ouvre','ouvrir','ferme','fermer','coupe','couper','tourne','tourner',
+  'relis','relire','vérifie','vérifier','corrige','corriger','observe','observer',
+  'pense','penser','complète','compléter','note','noter','indique','indiquer',
+  'sépare','séparer','regroupe','regrouper','associe','associer','nomme','nommer',
+  'donne','donner','choisis','choisir','encadre','encadrer','écris','écrire',
+])
+
+// Vérifie si un mot est un verbe d'action
+function isActionVerb(word) {
+  return ACTION_VERBS.has(word.toLowerCase().replace(/[.,!?]$/, ''))
+}
+
+// Découpe sur ponctuation forte, connecteurs séquentiels ET "et [verbe]"
 function splitIntoSteps(text) {
-  return text
+  // 1. Découpe sur ponctuation et connecteurs
+  const rawSteps = text
     .split(/(?<=[.!?])\s+|(?<=;)\s*|\s+(?=(?:puis|ensuite|après|alors)[, ])/gi)
     .map((s) => s.trim())
     .filter(Boolean)
-}
 
-// Découpe une phrase trop longue (>15 mots) sur "et" ou ","
-const MAX_WORDS = 15
-
-function breakLongSentence(sentence) {
-  const words = sentence.trim().split(/\s+/)
-  if (words.length <= MAX_WORDS) return [sentence]
-
-  // Cherche un "et" ou "," au-delà du mot 8
-  for (let i = 8; i < words.length - 2; i++) {
-    if (words[i].toLowerCase() === 'et' || words[i].endsWith(',')) {
-      const first = words.slice(0, i + (words[i].endsWith(',') ? 0 : 1)).join(' ').replace(/,$/, '') + '.'
-      const rest = words.slice(i + 1).join(' ')
-      const cap = rest.charAt(0).toUpperCase() + rest.slice(1)
-      return [first, cap]
+  // 2. Pour chaque étape, découpe sur "et [verbe d'action]"
+  const result = []
+  for (const step of rawSteps) {
+    const words = step.split(/\s+/)
+    let cutAt = -1
+    for (let i = 1; i < words.length - 1; i++) {
+      const w = words[i].toLowerCase()
+      // "et [verbe]" ou "et de [verbe]"
+      if (w === 'et') {
+        const next = words[i + 1]?.toLowerCase()
+        const afterDe = words[i + 2]?.toLowerCase()
+        if (isActionVerb(next)) { cutAt = i; break }
+        if (next === 'de' && afterDe && isActionVerb(afterDe)) { cutAt = i; break }
+      }
+    }
+    if (cutAt === -1) {
+      result.push(step)
+    } else {
+      const first = words.slice(0, cutAt).join(' ').replace(/[,.]$/, '') + '.'
+      // saute "de" si présent juste après "et"
+      const afterEt = words[cutAt + 1]?.toLowerCase() === 'de' ? cutAt + 2 : cutAt + 1
+      const second = words.slice(afterEt).join(' ')
+      result.push(first, second)
     }
   }
+  return result
+}
 
-  // Pas de coupure naturelle → découpe mécanique
-  return [
-    words.slice(0, MAX_WORDS).join(' ') + '…',
-    words.slice(MAX_WORDS).join(' '),
-  ]
+// Supprime le sujet et les connecteurs de début → commence par le verbe
+function stripSubject(sentence) {
+  return sentence
+    .replace(/^tu dois\s+/i, '')
+    .replace(/^vous devez\s+/i, '')
+    .replace(/^tu peux\s+/i, '')
+    .replace(/^puis\s+/i, '')
+    .replace(/^ensuite\s*,?\s*/i, '')
+    .replace(/^après\s*,?\s*/i, '')
+    .replace(/^alors\s*,?\s*/i, '')
+    .trim()
 }
 
 export function simplifyText(text) {
@@ -110,9 +149,14 @@ export function simplifyText(text) {
   result = result.replace(/\s{2,}/g, ' ').trim()
 
   const steps = splitIntoSteps(result)
-    .flatMap(breakLongSentence)
+    .filter(Boolean)
+    .map((s) => stripSubject(s.trim()))
     .filter(Boolean)
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
 
-  return steps.join('\n')
+  // Puces si plusieurs étapes
+  if (steps.length > 1) {
+    return steps.map((s) => `• ${s}`).join('\n')
+  }
+  return steps[0] ?? ''
 }
