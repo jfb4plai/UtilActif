@@ -59,7 +59,7 @@ export function ClassSetup({ onDone }) {
   return (
     <div className="max-w-lg mx-auto p-6 overflow-y-auto">
       <div className="flex items-center gap-3 mb-6">
-        <img src="/plai-logo.jpg" alt="PLAI" className="h-10 w-10 object-contain" />
+        <img src="/plai-logo.jpg" alt="PLAI" className="h-16 w-16 object-contain" />
         <h1 className="text-2xl font-bold text-plai-teal">Configuration de la classe</h1>
       </div>
 
