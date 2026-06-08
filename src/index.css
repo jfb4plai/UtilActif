@@ -20,10 +20,6 @@ body {
   filter: contrast(1.5);
 }
 
-* {
-  min-height: unset;
-}
-
 button, [role="button"], input, select {
   min-height: var(--touch-target);
   min-width: var(--touch-target);
