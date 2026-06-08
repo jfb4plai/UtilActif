@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { useClass } from '../shared/useClass'
 
-const LEVELS = ['MS', 'GS', 'CP', 'CE1', 'CE2', 'CM1', 'CM2', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6', '6e', '5e', '4e', '3e']
+const LEVELS = [
+  '1re mat.', '2e mat.', '3e mat.',
+  'P1', 'P2', 'P3', 'P4', 'P5', 'P6',
+  '1S', '2S', '3S', '4S', '5S', '6S',
+]
 
 export function ClassSetup({ onDone }) {
   const { profile, updateProfile, resetProfile } = useClass()
