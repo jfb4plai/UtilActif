@@ -17,6 +17,7 @@ export function ClassSetup({ onDone }) {
     students: [...profile.students],
   })
   const [newStudent, setNewStudent] = useState('')
+  const [bulkInput, setBulkInput] = useState('')
 
   function handleChange(field, value) {
     setForm((f) => ({ ...f, [field]: value }))
@@ -38,6 +39,23 @@ export function ClassSetup({ onDone }) {
       students: [...f.students, { id, displayName: name }],
     }))
     setNewStudent('')
+  }
+
+  function addBulk() {
+    const names = bulkInput
+      .split(',')
+      .map((n) => n.trim())
+      .filter(Boolean)
+    if (names.length === 0) return
+    setForm((f) => {
+      const base = f.students.length
+      const added = names.map((name, i) => ({
+        id: 'E' + String(base + i + 1).padStart(2, '0'),
+        displayName: name,
+      }))
+      return { ...f, students: [...f.students, ...added] }
+    })
+    setBulkInput('')
   }
 
   function removeStudent(id) {
@@ -128,10 +146,31 @@ export function ClassSetup({ onDone }) {
 
         <section className="space-y-3">
           <h2 className="font-semibold text-gray-700">Élèves (prénoms ou codes)</h2>
+
+          {/* Ajout en liste */}
           <div className="flex gap-2">
             <input
               className="flex-1 border rounded-lg px-4 py-3 text-lg"
-              placeholder="Prénom ou code"
+              placeholder="Alice, Bob, Charlie, …"
+              value={bulkInput}
+              onChange={(e) => setBulkInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addBulk())}
+            />
+            <button
+              type="button"
+              onClick={addBulk}
+              className="bg-plai-teal text-white px-4 rounded-lg font-bold text-sm whitespace-nowrap"
+              style={{ minHeight: 'var(--touch-target)' }}
+            >
+              Ajouter liste
+            </button>
+          </div>
+
+          {/* Ajout un par un */}
+          <div className="flex gap-2">
+            <input
+              className="flex-1 border rounded-lg px-4 py-3 text-lg"
+              placeholder="Prénom ou code (un seul)"
               value={newStudent}
               onChange={(e) => setNewStudent(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addStudent())}
@@ -139,7 +178,7 @@ export function ClassSetup({ onDone }) {
             <button
               type="button"
               onClick={addStudent}
-              className="bg-plai-teal text-white px-5 rounded-lg font-bold text-xl"
+              className="bg-gray-200 text-gray-700 px-5 rounded-lg font-bold text-xl"
               style={{ minHeight: 'var(--touch-target)' }}
             >
               +
