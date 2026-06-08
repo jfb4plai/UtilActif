@@ -57,11 +57,12 @@ export function ClassSetup({ onDone }) {
   }
 
   return (
-    <div className="max-w-lg mx-auto p-6 overflow-y-auto">
-      <div className="flex items-center gap-3 mb-6">
-        <img src="/plai-logo.jpg" alt="PLAI" className="h-16 w-16 object-contain" />
+    <div className="min-h-screen bg-gray-50">
+      <header className="w-full bg-[#f5f0e8] border-b border-[#e8dfd0] px-6 py-4 flex items-center gap-4 mb-6">
+        <img src="/plai-logo.jpg" alt="PLAI" style={{ height: '80px', width: '80px' }} className="object-contain" />
         <h1 className="text-2xl font-bold text-plai-teal">Configuration de la classe</h1>
-      </div>
+      </header>
+      <div className="max-w-lg mx-auto px-6 pb-6 overflow-y-auto">
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <section className="space-y-3">
@@ -175,6 +176,7 @@ export function ClassSetup({ onDone }) {
           Réinitialiser la classe
         </button>
       </form>
+      </div>
     </div>
   )
 }
