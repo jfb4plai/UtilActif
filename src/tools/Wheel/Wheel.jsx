@@ -13,10 +13,11 @@ export function Wheel({ onBack, onEditClass }) {
   const [spinning, setSpinning] = useState(false)
   const [selected, setSelected] = useState(null)
   const [history, setHistory] = useState([])
+  const [noReplacement, setNoReplacement] = useState(false)
   const [drawn, setDrawn] = useState(new Set())
 
-  const available = students.filter((s) => !drawn.has(s.id))
-  const allDrawn = students.length > 0 && available.length === 0
+  const available = noReplacement ? students.filter((s) => !drawn.has(s.id)) : students
+  const allDrawn = noReplacement && students.length > 0 && available.length === 0
 
   function handleSpin() {
     if (spinning || available.length === 0) return
@@ -26,12 +27,18 @@ export function Wheel({ onBack, onEditClass }) {
       const winner = available[Math.floor(Math.random() * available.length)]
       setSelected(winner)
       setHistory((h) => [winner, ...h].slice(0, 5))
-      setDrawn((d) => new Set([...d, winner.id]))
+      if (noReplacement) setDrawn((d) => new Set([...d, winner.id]))
       setSpinning(false)
     }, 1200)
   }
 
   function handleReset() {
+    setDrawn(new Set())
+    setSelected(null)
+  }
+
+  function handleToggleMode() {
+    setNoReplacement((v) => !v)
     setDrawn(new Set())
     setSelected(null)
   }
@@ -68,6 +75,17 @@ export function Wheel({ onBack, onEditClass }) {
       </header>
 
       <main className="flex-1 flex flex-col items-center justify-center gap-8 p-6">
+        <button
+          onClick={handleToggleMode}
+          className={`px-5 py-2 rounded-full text-sm font-semibold border-2 transition-colors ${
+            noReplacement
+              ? 'bg-plai-teal text-white border-plai-teal'
+              : 'bg-white text-gray-500 border-gray-300'
+          }`}
+          style={{ minHeight: 'var(--touch-target)' }}
+        >
+          {noReplacement ? 'Sans remise — chacun une fois' : 'Avec remise — groupe constant'}
+        </button>
         <div
           className={`w-64 h-64 rounded-full border-8 border-plai-teal flex items-center justify-center shadow-xl ${
             spinning ? 'animate-spin' : ''
