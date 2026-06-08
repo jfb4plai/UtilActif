@@ -2,19 +2,42 @@ import { useState } from 'react'
 import { useClass } from '../../shared/useClass'
 import { BackButton } from '../../components/BackButton'
 import { ClassButton } from '../../components/ClassButton'
-import { rollDice, valueToWord, valueToDots } from './diceUtils'
+import { rollDice, valueToWord, getDotPattern } from './diceUtils'
 
 function DiceFace({ value }) {
-  const dots = valueToDots(value)
+  const pattern = getDotPattern(value)
   return (
-    <div className="bg-white border-4 border-gray-200 rounded-3xl p-4 flex flex-col items-center gap-3 shadow-lg min-w-[140px]">
-      <div className="grid grid-cols-3 gap-2 h-20 w-20 items-center justify-items-center">
-        {dots.map((_, i) => (
-          <div key={i} className="w-5 h-5 bg-gray-800 rounded-full" />
-        ))}
+    <div className="flex flex-col items-center gap-3">
+      {/* Face du dé */}
+      <div
+        className="bg-white rounded-3xl shadow-2xl flex items-center justify-center"
+        style={{
+          width: 160,
+          height: 160,
+          border: '3px solid #e5e7eb',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8)',
+        }}
+      >
+        <div className="grid grid-cols-3 gap-3" style={{ width: 108, height: 108 }}>
+          {pattern.map((filled, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-center"
+            >
+              {filled && (
+                <div
+                  className="rounded-full bg-gray-800"
+                  style={{ width: 26, height: 26 }}
+                />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="text-5xl font-bold text-plai-teal">{value}</div>
-      <div className="text-2xl text-gray-600 capitalize">{valueToWord(value)}</div>
+      {/* Chiffre */}
+      <div className="text-5xl font-bold text-plai-teal leading-none">{value}</div>
+      {/* Mot */}
+      <div className="text-2xl text-gray-500 font-medium">{valueToWord(value)}</div>
     </div>
   )
 }
