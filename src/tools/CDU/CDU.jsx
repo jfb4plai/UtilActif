@@ -227,13 +227,13 @@ function AddTab() {
             </div>
             <div className="flex gap-8 justify-center items-end flex-wrap">
               <BlockZone count={phase === 'init' ? A.c : wk.c} BlockComp={CentaineBlock} label="C" color={CC.side}
-                dimLast={dimD > 0 ? 0 : 0} addCount={addBlocs.c}/>
+                dimLast={0} addCount={phase === 'init' ? B.c : addBlocs.c}/>
               <div className="w-px bg-gray-200 self-stretch"/>
               <BlockZone count={phase === 'init' ? A.d : wk.d} BlockComp={DizaineBlock} label="D" color={DC.side}
-                dimLast={dimD} addCount={addBlocs.d}/>
+                dimLast={dimD} addCount={phase === 'init' ? B.d : addBlocs.d}/>
               <div className="w-px bg-gray-200 self-stretch"/>
               <BlockZone count={phase === 'init' ? A.u : wk.u} BlockComp={UniteBlock} label="U" color={UC.side}
-                dimLast={dimU} addCount={addBlocs.u}/>
+                dimLast={dimU} addCount={phase === 'init' ? B.u : addBlocs.u}/>
             </div>
           </div>
 
