@@ -3,20 +3,21 @@ import { BackButton } from '../../components/BackButton'
 import { ClassButton } from '../../components/ClassButton'
 
 // --- Constantes visuelles ---
-// 1 cellule = 8px. Centaine = 10×10 = 80px. Dizaine = 8×80px. Unité = 8×8px.
-const CELL = 8
-const S_C = CELL * 10   // 80px — face frontale centaine
-const S_D = CELL        // 8px  — largeur face dizaine
-const H_D = S_C         // 80px — hauteur face dizaine
-const S_U = CELL        // 8px  — face unité
-const DEP_C = 9         // profondeur centaine
-const DEP_D = 7         // profondeur dizaine
-const DEP_U = 5         // profondeur unité
+// 1 cellule = 11px. Centaine = 10×10 = 110px. Dizaine = 11×110px. Unité = 11×11px.
+const CELL = 11
+const S_C = CELL * 10   // 110px — face frontale centaine
+const S_D = CELL        // 11px  — largeur face dizaine
+const H_D = S_C         // 110px — hauteur face dizaine
+const S_U = CELL        // 11px  — face unité
+const DEP_C = 12        // profondeur centaine
+const DEP_D = 9         // profondeur dizaine
+const DEP_U = 7         // profondeur unité — plus marqué pour visibilité
 
 // Couleurs CDU standard
 const CC = { front: '#4ade80', top: '#86efac', side: '#16a34a', grid: '#15803d' }
 const DC = { front: '#f87171', top: '#fca5a5', side: '#b91c1c', grid: '#991b1b' }
-const UC = { front: '#f1f5f9', top: '#ffffff',  side: '#94a3b8', grid: '#cbd5e1' }
+// Unités : fond crème chaud + bordure grise foncée pour meilleure visibilité
+const UC = { front: '#fef9ef', top: '#ffffff',  side: '#6b7280', grid: '#9ca3af' }
 
 // --- Blocs SVG ---
 function CentaineBlock() {
@@ -78,7 +79,7 @@ function UniteBlock() {
       {/* Face haute */}
       <polygon points={`0,${DEP_U} ${DEP_U},0 ${W},0 ${S_U},${DEP_U}`} fill={UC.top} />
       {/* Face frontale */}
-      <rect x={0} y={DEP_U} width={S_U} height={S_U} fill={UC.front} stroke={UC.side} strokeWidth={1} />
+      <rect x={0} y={DEP_U} width={S_U} height={S_U} fill={UC.front} stroke={UC.side} strokeWidth={1.5} />
     </svg>
   )
 }
@@ -309,7 +310,7 @@ export function CDU({ onBack, onEditClass }) {
                 min="0" max="999"
                 value={targetNumber}
                 onChange={e => { setTargetNumber(e.target.value); resetFeedback(); setStudentC(0); setStudentD(0); setStudentU(0) }}
-                className="w-40 text-center text-5xl font-black border-4 border-plai-teal rounded-2xl py-3 outline-none focus:ring-2"
+                className="w-36 text-center text-3xl font-black border-4 border-plai-teal rounded-2xl py-3 outline-none focus:ring-2"
                 placeholder="?"
               />
             </div>
