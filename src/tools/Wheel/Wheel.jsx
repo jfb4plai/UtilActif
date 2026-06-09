@@ -104,40 +104,54 @@ export function Wheel({ onBack, onEditClass }) {
   const { students } = useClass()
   const [spinning, setSpinning] = useState(false)
   const [selected, setSelected] = useState(null)
-  const [pendingSelected, setPendingSelected] = useState(null)
   const [history, setHistory] = useState([])
   const [noReplacement, setNoReplacement] = useState(false)
+  // drawn = exclus définitivement (retirés au début du spin suivant)
   const [drawn, setDrawn] = useState(new Set())
+  // lastWinnerId = gagnant du dernier tour, encore visible sur la roue, sera retiré au prochain spin
+  const [lastWinnerId, setLastWinnerId] = useState(null)
   const [rotation, setRotation] = useState(0)
 
+  // La roue affiche tout sauf les déjà tirés (lastWinnerId reste visible jusqu'au prochain spin)
   const available = noReplacement ? students.filter((s) => !drawn.has(s.id)) : students
   const allDrawn = noReplacement && students.length > 0 && available.length === 0
   const segments = buildSegments(available)
 
   function handleSpin() {
     if (spinning || available.length === 0) return
+
+    // Retire le gagnant du tour précédent au moment où on relance
+    let nextDrawn = drawn
+    let nextAvailable = available
+    if (noReplacement && lastWinnerId) {
+      nextDrawn = new Set([...drawn, lastWinnerId])
+      nextAvailable = students.filter((s) => !nextDrawn.has(s.id))
+      setDrawn(nextDrawn)
+      setLastWinnerId(null)
+    }
+
+    if (nextAvailable.length === 0) return
+
     setSpinning(true)
     setSelected(null)
 
-    const winIdx = Math.floor(Math.random() * available.length)
-    const winner = available[winIdx]
-    const targetRotation = computeTargetRotation(rotation, winIdx, available.length)
-
-    setPendingSelected(winner)
+    const winIdx = Math.floor(Math.random() * nextAvailable.length)
+    const winner = nextAvailable[winIdx]
+    const targetRotation = computeTargetRotation(rotation, winIdx, nextAvailable.length)
     setRotation(targetRotation)
 
     // La durée doit correspondre à la transition CSS (2.5s)
     setTimeout(() => {
       setSelected(winner)
       setHistory((h) => [winner, ...h].slice(0, 5))
-      if (noReplacement) setDrawn((d) => new Set([...d, winner.id]))
+      if (noReplacement) setLastWinnerId(winner.id)  // sera retiré au prochain spin
       setSpinning(false)
-      setPendingSelected(null)
     }, 2600)
   }
 
   function handleReset() {
     setDrawn(new Set())
+    setLastWinnerId(null)
     setSelected(null)
     setRotation(0)
   }
@@ -145,6 +159,7 @@ export function Wheel({ onBack, onEditClass }) {
   function handleToggleMode() {
     setNoReplacement((v) => !v)
     setDrawn(new Set())
+    setLastWinnerId(null)
     setSelected(null)
     setRotation(0)
   }
