@@ -4,12 +4,12 @@ import { BackButton } from '../../components/BackButton'
 import { ClassButton } from '../../components/ClassButton'
 
 // --- Constantes SVG ---
-const SIZE = 320
+const SIZE = 360
 const CX = SIZE / 2
 const CY = SIZE / 2
-const R_ARC = 126        // rayon de l'arc coloré
-const R_TICK_OUT = 146   // extrémité extérieure des traits
-const R_LABEL = 158      // position des chiffres
+const R_ARC = 130        // rayon de l'arc coloré
+const R_TICK_OUT = 150   // extrémité extérieure des traits
+const R_LABEL = 164      // position des chiffres (assez loin pour les labels latéraux)
 const MAX_MINUTES = 60
 
 const PRESETS = [1, 2, 5, 10, 15, 20, 25, 30]
@@ -149,8 +149,9 @@ export function Timer({ onBack, onEditClass }) {
   }
 
   // --- Calculs visuels ---
-  const ratio = duration > 0 ? remaining / duration : 0
-  const sweepAngle = ratio * 360
+  // L'arc représente le temps restant sur l'horloge 60 min complète (pas un ratio duration/duration)
+  const sweepAngle = remaining / (MAX_MINUTES * 60) * 360
+  const ratio = duration > 0 ? remaining / duration : 0  // pour la couleur seulement
   const color = arcColor(ratio)
 
   // Position de l'aiguille (extrémité de l'arc = temps restant)
@@ -187,6 +188,7 @@ export function Timer({ onBack, onEditClass }) {
           ref={svgRef}
           width={SIZE}
           height={SIZE}
+          viewBox={`0 0 ${SIZE} ${SIZE}`}
           style={{ maxWidth: '85vw', maxHeight: '85vw', cursor: running ? 'default' : 'pointer', touchAction: 'none' }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
