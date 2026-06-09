@@ -264,35 +264,58 @@ export function NumberGrid({ onBack, onEditClass }) {
           </div>
         </div>
 
-        {/* Options mode amis */}
+        {/* Options mode amis — 2 lignes claires */}
         {isAmiMode && (
-          <div className="flex gap-3 flex-wrap justify-center items-center bg-orange-50 border border-orange-200 rounded-xl px-4 py-3">
-            {/* Toggle interactif / afficher tout */}
-            <button onClick={toggleInteractif}
-              className={`px-4 py-2 rounded-lg border-2 font-semibold text-sm ${
-                interactif ? 'bg-plai-teal text-white border-plai-teal' : 'bg-white border-gray-300 text-gray-600'
-              }`} style={{ minHeight: '44px' }}>
-              {interactif ? 'Mode élève actif' : 'Afficher tout'}
-            </button>
-
-            {/* Toggle montrer l'ami (visible seulement en mode interactif) */}
-            {interactif && (
-              <button onClick={() => setShowPartner(v => !v)}
-                className={`px-4 py-2 rounded-lg border-2 font-semibold text-sm ${
-                  showPartner ? 'bg-plai-orange text-white border-plai-orange' : 'bg-white border-gray-300 text-gray-600'
-                }`} style={{ minHeight: '44px' }}>
-                {showPartner ? 'Montrer l\'ami ✓' : 'Trouver l\'ami'}
+          <div className="w-full max-w-xl flex flex-col gap-2">
+            {/* Ligne 1 : choix du mode */}
+            <div className="flex rounded-xl overflow-hidden border-2 border-orange-300">
+              <button onClick={() => { if (interactif) toggleInteractif() }}
+                className={`flex-1 py-3 font-semibold text-base transition-colors ${
+                  !interactif ? 'bg-plai-orange text-white' : 'bg-white text-gray-500'
+                }`}>
+                Afficher tout
               </button>
-            )}
+              <button onClick={() => { if (!interactif) toggleInteractif() }}
+                className={`flex-1 py-3 font-semibold text-base transition-colors ${
+                  interactif ? 'bg-plai-teal text-white' : 'bg-white text-gray-500'
+                }`}>
+                Exercice élève
+              </button>
+            </div>
 
-            {/* Indication du mode actif */}
+            {/* Ligne 2 : option enseignant (visible seulement en exercice) */}
             {interactif && (
-              <span className="text-sm text-gray-500 italic">
-                {showPartner
-                  ? 'Clic → les deux amis s\'allument'
-                  : firstClick ? `${firstClick} sélectionné — clique l'ami !` : 'Clique un nombre pour commencer'}
-              </span>
+              <div className="flex rounded-xl overflow-hidden border-2 border-teal-300">
+                <button onClick={() => { if (!showPartner) setShowPartner(true) }}
+                  className={`flex-1 py-3 font-semibold text-sm transition-colors ${
+                    showPartner ? 'bg-plai-teal text-white' : 'bg-white text-gray-500'
+                  }`}>
+                  Montrer l'ami au clic
+                </button>
+                <button onClick={() => { if (showPartner) setShowPartner(false); setFirstClick(null); setRevealedAmis(new Set()) }}
+                  className={`flex-1 py-3 font-semibold text-sm transition-colors ${
+                    !showPartner ? 'bg-plai-teal text-white' : 'bg-white text-gray-500'
+                  }`}>
+                  L'élève cherche l'ami
+                </button>
+              </div>
             )}
+          </div>
+        )}
+
+        {/* Consigne visible au-dessus de la grille en mode exercice */}
+        {isAmiMode && interactif && (
+          <div className={`w-full max-w-xl rounded-xl px-5 py-4 text-center font-bold text-xl ${
+            firstClick
+              ? 'bg-amber-100 border-2 border-amber-400 text-amber-800'
+              : 'bg-teal-50 border-2 border-teal-200 text-teal-700'
+          }`}>
+            {!showPartner && firstClick
+              ? `Quel est l'ami de ${firstClick} pour faire ${friendsTarget} ?`
+              : !showPartner
+              ? `Clique un nombre — puis trouve son ami pour faire ${friendsTarget}`
+              : `Clique un nombre — son ami s'allume aussi`
+            }
           </div>
         )}
 
