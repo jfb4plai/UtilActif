@@ -7,6 +7,7 @@ const TOOLS = [
   { id: 'consigne', label: 'Consigne', icon: '📋', description: 'Simplificateur' },
   { id: 'numgrid', label: 'Grille', icon: '🔢', description: 'Nombres 1-100' },
   { id: 'turns', label: 'Tours', icon: '🙋', description: 'Parole en classe' },
+  { id: 'cdu',   label: 'C·D·U', icon: '🧱', description: 'Centaines · Dizaines · Unités' },
 ]
 
 export function ToolGrid({ onSelectTool, onEditClass }) {
@@ -20,7 +21,7 @@ export function ToolGrid({ onSelectTool, onEditClass }) {
         <ClassButton onClick={onEditClass} />
       </header>
 
-      <main className="flex-1 grid grid-cols-2 grid-rows-3 gap-4 p-6">
+      <main className="flex-1 grid grid-cols-2 gap-4 p-6" style={{ gridTemplateRows: 'repeat(4, 1fr)' }}>
         {TOOLS.map((tool) => (
           <button
             key={tool.id}

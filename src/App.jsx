@@ -11,6 +11,7 @@ import { Wheel } from './tools/Wheel/Wheel'
 import { ConsigneDisplay } from './tools/ConsigneDisplay/ConsigneDisplay'
 import { NumberGrid } from './tools/NumberGrid/NumberGrid'
 import { TurnManager } from './tools/TurnManager/TurnManager'
+import { CDU } from './tools/CDU/CDU'
 
 const TOOL_COMPONENTS = {
   timer: Timer,
@@ -19,6 +20,7 @@ const TOOL_COMPONENTS = {
   consigne: ConsigneDisplay,
   numgrid: NumberGrid,
   turns: TurnManager,
+  cdu: CDU,
 }
 
 function AppInner() {
