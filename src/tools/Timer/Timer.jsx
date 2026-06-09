@@ -87,17 +87,13 @@ export function Timer({ onBack, onEditClass }) {
     return () => clearInterval(intervalRef.current)
   }, [running])
 
-  useEffect(() => {
-    if (finished && isADHD) {
-      const t = setTimeout(() => setFinished(false), 4000)
-      return () => clearTimeout(t)
-    }
-  }, [finished, isADHD])
+  // Pas d'auto-dismiss — l'enseignant doit appuyer sur Stop
 
   // --- Contrôles ---
   function handleStart() { setFinished(false); setRunning(true) }
   function handlePause() { setRunning(false) }
   function handleReset() { setRunning(false); setFinished(false); setRemaining(duration) }
+  function handleStop() { setFinished(false); setRunning(false); setRemaining(duration) }
 
   function handlePreset(minutes) {
     const secs = minutes * 60
@@ -168,11 +164,9 @@ export function Timer({ onBack, onEditClass }) {
     ticks.push({ outer, inner, isMajor, angle, label: i })
   }
 
-  const flashBg = finished && isADHD
-
   return (
-    <div className={`min-h-screen flex flex-col ${flashBg ? 'animate-pulse' : ''}`}
-      style={{ background: flashBg ? '#fee2e2' : '#2d1b5e' }}>
+    <div className={`min-h-screen flex flex-col ${finished ? 'animate-pulse' : ''}`}
+      style={{ background: finished ? '#7f1d1d' : '#1a0e3d' }}>
 
       <header className="flex items-center justify-between px-6 py-4"
         style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
@@ -195,8 +189,9 @@ export function Timer({ onBack, onEditClass }) {
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
-          {/* Fond du cadran */}
-          <circle cx={CX} cy={CY} r={R_TICK_OUT + 6} fill="rgba(255,255,255,0.07)" />
+          {/* Fond du cadran — plus contrasté */}
+          <circle cx={CX} cy={CY} r={R_TICK_OUT + 6} fill="#2d1b6e" />
+          <circle cx={CX} cy={CY} r={R_TICK_OUT + 6} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="2" />
 
           {/* Arc restant */}
           <path d={sectorPath(sweepAngle)} fill={color} opacity="0.9" />
@@ -234,18 +229,26 @@ export function Timer({ onBack, onEditClass }) {
             )
           })}
 
-          {/* Aiguille (extrémité de l'arc = temps restant) */}
-          {ratio > 0 && (
+          {/* Aiguille — couleur de l'arc */}
+          {remaining > 0 && (
             <>
               <line
                 x1={CX} y1={CY}
                 x2={handTip.x} y2={handTip.y}
-                stroke="white"
-                strokeWidth={3}
+                stroke={color}
+                strokeWidth={4}
                 strokeLinecap="round"
-                opacity={0.9}
+                opacity={1}
+                filter="url(#glow)"
               />
-              <circle cx={handTip.x} cy={handTip.y} r={6} fill="white" opacity={0.95} />
+              <circle cx={handTip.x} cy={handTip.y} r={7} fill={color} opacity={1} />
+              {/* Filtre lueur */}
+              <defs>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
             </>
           )}
 
@@ -277,58 +280,69 @@ export function Timer({ onBack, onEditClass }) {
           )}
         </svg>
 
-        {/* Boutons principaux */}
-        <div className="flex gap-4">
-          {!running ? (
+        {/* Fin du temps — message persistant + bouton Stop */}
+        {finished ? (
+          <div className="flex flex-col items-center gap-5">
+            <p className="text-4xl font-bold text-red-300 animate-bounce tracking-wide">
+              Temps écoulé !
+            </p>
             <button
-              onClick={handleStart}
-              disabled={remaining === 0}
-              className="text-white px-10 py-4 rounded-2xl text-2xl font-bold disabled:opacity-40"
-              style={{ background: '#0a9370', minHeight: 'var(--touch-target)' }}
+              onClick={handleStop}
+              className="text-white px-14 py-5 rounded-2xl text-2xl font-bold"
+              style={{ background: '#ef4444', minHeight: 'var(--touch-target)' }}
             >
-              Démarrer
+              Stop
             </button>
-          ) : (
-            <button
-              onClick={handlePause}
-              className="text-white px-10 py-4 rounded-2xl text-2xl font-bold"
-              style={{ background: '#f97316', minHeight: 'var(--touch-target)' }}
-            >
-              Pause
-            </button>
-          )}
-          <button
-            onClick={handleReset}
-            className="text-white px-8 py-4 rounded-2xl text-2xl font-bold"
-            style={{ background: 'rgba(255,255,255,0.15)', minHeight: 'var(--touch-target)' }}
-          >
-            ↺
-          </button>
-        </div>
+          </div>
+        ) : (
+          <>
+            {/* Boutons principaux */}
+            <div className="flex gap-4">
+              {!running ? (
+                <button
+                  onClick={handleStart}
+                  disabled={remaining === 0}
+                  className="text-white px-10 py-4 rounded-2xl text-2xl font-bold disabled:opacity-40"
+                  style={{ background: '#0a9370', minHeight: 'var(--touch-target)' }}
+                >
+                  Démarrer
+                </button>
+              ) : (
+                <button
+                  onClick={handlePause}
+                  className="text-white px-10 py-4 rounded-2xl text-2xl font-bold"
+                  style={{ background: '#f97316', minHeight: 'var(--touch-target)' }}
+                >
+                  Pause
+                </button>
+              )}
+              <button
+                onClick={handleReset}
+                className="text-white px-8 py-4 rounded-2xl text-2xl font-bold"
+                style={{ background: 'rgba(255,255,255,0.15)', minHeight: 'var(--touch-target)' }}
+              >
+                ↺
+              </button>
+            </div>
 
-        {/* Presets */}
-        <div className="flex gap-2 flex-wrap justify-center">
-          {PRESETS.map((m) => (
-            <button
-              key={m}
-              onClick={() => handlePreset(m)}
-              className="rounded-xl px-4 py-2 text-base font-semibold transition-colors"
-              style={{
-                background: duration === m * 60 ? '#0a9370' : 'rgba(255,255,255,0.12)',
-                color: 'white',
-                minHeight: '48px',
-              }}
-            >
-              {m} min
-            </button>
-          ))}
-        </div>
-
-        {/* Fin du temps */}
-        {finished && (
-          <p className="text-3xl font-bold text-green-300 animate-bounce">
-            Temps écoulé !
-          </p>
+            {/* Presets */}
+            <div className="flex gap-2 flex-wrap justify-center">
+              {PRESETS.map((m) => (
+                <button
+                  key={m}
+                  onClick={() => handlePreset(m)}
+                  className="rounded-xl px-4 py-2 text-base font-semibold transition-colors"
+                  style={{
+                    background: duration === m * 60 ? '#0a9370' : 'rgba(255,255,255,0.12)',
+                    color: 'white',
+                    minHeight: '48px',
+                  }}
+                >
+                  {m} min
+                </button>
+              ))}
+            </div>
+          </>
         )}
       </main>
     </div>
