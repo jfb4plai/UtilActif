@@ -4,40 +4,62 @@ import { BackButton } from '../../components/BackButton'
 import { ClassButton } from '../../components/ClassButton'
 import { rollDice, valueToWord, getDotPattern } from './diceUtils'
 
-function DiceFace({ value }) {
+// Taille du dé selon le nombre affiché
+function dieSize(count) {
+  if (count === 1) return { face: 180, grid: 122, dot: 28, num: '5xl', word: '2xl', gap: 16 }
+  if (count === 2) return { face: 148, grid: 100, dot: 22, num: '4xl', word: 'xl',  gap: 13 }
+  if (count === 3) return { face: 128, grid:  86, dot: 18, num: '3xl', word: 'lg',  gap: 11 }
+  return                    { face: 110, grid:  74, dot: 15, num: '2xl', word: 'base', gap: 9  }
+}
+
+function DiceFace({ value, count = 1 }) {
   const pattern = getDotPattern(value)
+  const sz = dieSize(count)
   return (
-    <div className="flex flex-col items-center gap-3">
-      {/* Face du dé */}
+    <div className="flex flex-col items-center gap-2">
+      {/* Face du dé — bord visible, coins peu arrondis, ombre latérale 3D */}
       <div
-        className="bg-white rounded-3xl shadow-2xl flex items-center justify-center"
         style={{
-          width: 160,
-          height: 160,
-          border: '3px solid #e5e7eb',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8)',
+          width: sz.face,
+          height: sz.face,
+          background: 'linear-gradient(145deg, #fffef8 0%, #f5f0e0 100%)',
+          borderRadius: 14,
+          border: '3px solid #374151',
+          boxShadow: [
+            '4px 4px 0px #1f2937',            // ombre portée forte → effet cube
+            '0 10px 28px rgba(0,0,0,0.22)',    // ombre diffuse
+            'inset 0 1px 0 rgba(255,255,255,0.9)',
+          ].join(', '),
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
         }}
       >
-        <div className="grid grid-cols-3 gap-3" style={{ width: 108, height: 108 }}>
+        <div
+          className="grid grid-cols-3"
+          style={{ width: sz.grid, height: sz.grid, gap: sz.gap / 3 }}
+        >
           {pattern.map((filled, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-center"
-            >
+            <div key={i} className="flex items-center justify-center">
               {filled && (
                 <div
-                  className="rounded-full bg-gray-800"
-                  style={{ width: 26, height: 26 }}
+                  className="rounded-full"
+                  style={{
+                    width: sz.dot,
+                    height: sz.dot,
+                    background: '#1f2937',
+                    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.4)',
+                  }}
                 />
               )}
             </div>
           ))}
         </div>
       </div>
-      {/* Chiffre */}
-      <div className="text-5xl font-bold text-plai-teal leading-none">{value}</div>
-      {/* Mot */}
-      <div className="text-2xl text-gray-500 font-medium">{valueToWord(value)}</div>
+      {/* Chiffre + mot */}
+      <div className={`text-${sz.num} font-bold text-plai-teal leading-none`}>{value}</div>
+      <div className={`text-${sz.word} text-gray-500 font-medium`}>{valueToWord(value)}</div>
     </div>
   )
 }
@@ -92,7 +114,7 @@ export function Dice({ onBack, onEditClass }) {
           } ${isDyslexia ? 'gap-8' : 'gap-6'}`}
         >
           {values.map((v, i) => (
-            <DiceFace key={i} value={v} />
+            <DiceFace key={i} value={v} count={count} />
           ))}
         </div>
 
