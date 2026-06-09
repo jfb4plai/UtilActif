@@ -12,6 +12,7 @@ const SIZE = 380
 const R = SIZE / 2
 const CX = R
 const CY = R
+const SPIN_TURNS = 6  // nombre de tours complets avant d'arriver au gagnant
 
 function buildSegments(students) {
   const n = students.length
@@ -41,13 +42,34 @@ function buildSegments(students) {
   })
 }
 
-function WheelSVG({ segments, spinning }) {
+// Calcule l'angle de rotation pour amener le quartier winIdx sous le triangle (haut = -90°)
+function computeTargetRotation(prevRotation, winIdx, n) {
+  // Milieu du quartier gagnant dans le référentiel de la roue
+  const midpointInWheel = (winIdx + 0.5) * 360 / n - 90
+  // Position actuelle sur l'écran après prevRotation
+  const currentScreenAngle = prevRotation + midpointInWheel
+  // On veut que ça tombe à -90° (haut)
+  let delta = -90 - currentScreenAngle
+  // Normaliser pour aller vers l'avant [0, 360)
+  delta = ((delta % 360) + 360) % 360
+  // Éviter un angle trop petit (quasi pas de rotation visible)
+  if (delta < 20) delta += 360
+  return prevRotation + delta + SPIN_TURNS * 360
+}
+
+function WheelSVG({ segments, rotation, spinning }) {
   return (
     <svg
       width={SIZE}
       height={SIZE}
-      className={spinning ? 'animate-spin' : ''}
-      style={{ animationDuration: '1s', maxWidth: '80vw', maxHeight: '80vw' }}
+      style={{
+        maxWidth: '80vw',
+        maxHeight: '80vw',
+        transform: `rotate(${rotation}deg)`,
+        transition: spinning ? 'transform 2.5s cubic-bezier(0.17, 0.67, 0.12, 1)' : 'none',
+        transformOrigin: 'center',
+        display: 'block',
+      }}
     >
       {segments.map((seg, i) => (
         <g key={i}>
@@ -82,9 +104,11 @@ export function Wheel({ onBack, onEditClass }) {
   const { students } = useClass()
   const [spinning, setSpinning] = useState(false)
   const [selected, setSelected] = useState(null)
+  const [pendingSelected, setPendingSelected] = useState(null)
   const [history, setHistory] = useState([])
   const [noReplacement, setNoReplacement] = useState(false)
   const [drawn, setDrawn] = useState(new Set())
+  const [rotation, setRotation] = useState(0)
 
   const available = noReplacement ? students.filter((s) => !drawn.has(s.id)) : students
   const allDrawn = noReplacement && students.length > 0 && available.length === 0
@@ -94,24 +118,35 @@ export function Wheel({ onBack, onEditClass }) {
     if (spinning || available.length === 0) return
     setSpinning(true)
     setSelected(null)
+
+    const winIdx = Math.floor(Math.random() * available.length)
+    const winner = available[winIdx]
+    const targetRotation = computeTargetRotation(rotation, winIdx, available.length)
+
+    setPendingSelected(winner)
+    setRotation(targetRotation)
+
+    // La durée doit correspondre à la transition CSS (2.5s)
     setTimeout(() => {
-      const winner = available[Math.floor(Math.random() * available.length)]
       setSelected(winner)
       setHistory((h) => [winner, ...h].slice(0, 5))
       if (noReplacement) setDrawn((d) => new Set([...d, winner.id]))
       setSpinning(false)
-    }, 1200)
+      setPendingSelected(null)
+    }, 2600)
   }
 
   function handleReset() {
     setDrawn(new Set())
     setSelected(null)
+    setRotation(0)
   }
 
   function handleToggleMode() {
     setNoReplacement((v) => !v)
     setDrawn(new Set())
     setSelected(null)
+    setRotation(0)
   }
 
   if (students.length === 0) {
@@ -173,19 +208,19 @@ export function Wheel({ onBack, onEditClass }) {
             <div
               style={{
                 position: 'absolute',
-                top: -18,
+                top: -22,
                 left: '50%',
                 transform: 'translateX(-50%)',
                 width: 0,
                 height: 0,
-                borderLeft: '16px solid transparent',
-                borderRight: '16px solid transparent',
-                borderTop: '28px solid #1f2937',
+                borderLeft: '18px solid transparent',
+                borderRight: '18px solid transparent',
+                borderTop: '32px solid #1f2937',
                 zIndex: 10,
-                filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.3))',
+                filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))',
               }}
             />
-            <WheelSVG segments={segments} spinning={spinning} />
+            <WheelSVG segments={segments} rotation={rotation} spinning={spinning} />
           </div>
         )}
 
