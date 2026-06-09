@@ -74,11 +74,6 @@ function WheelSVG({ segments, spinning }) {
       ))}
       {/* Centre blanc */}
       <circle cx={CX} cy={CY} r={R * 0.12} fill="white" />
-      {/* Indicateur (triangle en haut) */}
-      <polygon
-        points={`${CX},${8} ${CX - 12},${-8} ${CX + 12},${-8}`}
-        fill="#1f2937"
-      />
     </svg>
   )
 }
@@ -173,7 +168,25 @@ export function Wheel({ onBack, onEditClass }) {
             </span>
           </div>
         ) : (
-          <WheelSVG segments={segments} spinning={spinning} />
+          <div className="relative" style={{ width: SIZE, maxWidth: '80vw' }}>
+            {/* Triangle indicateur fixe — pointe vers le bas, centré en haut */}
+            <div
+              style={{
+                position: 'absolute',
+                top: -18,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: 0,
+                height: 0,
+                borderLeft: '16px solid transparent',
+                borderRight: '16px solid transparent',
+                borderTop: '28px solid #1f2937',
+                zIndex: 10,
+                filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.3))',
+              }}
+            />
+            <WheelSVG segments={segments} spinning={spinning} />
+          </div>
         )}
 
         {selected && !spinning && !allDrawn && (
