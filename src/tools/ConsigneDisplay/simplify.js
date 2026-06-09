@@ -148,11 +148,17 @@ export function simplifyText(text) {
   // Nettoyage des espaces doubles introduits par les suppressions
   result = result.replace(/\s{2,}/g, ' ').trim()
 
+  // Ajoute un point final si absent
+  function withPeriod(s) {
+    return /[.!?]$/.test(s) ? s : s + '.'
+  }
+
   const steps = splitIntoSteps(result)
     .filter(Boolean)
     .map((s) => stripSubject(s.trim()))
     .filter(Boolean)
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .map(withPeriod)
 
   // Puces si plusieurs étapes
   if (steps.length > 1) {
