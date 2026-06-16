@@ -1,5 +1,5 @@
 export function getMonsterLevel(level, threshold) {
-  if (threshold === null) {
+  if (threshold == null || threshold <= 0) {
     if (level < 25) return 0
     if (level < 50) return 1
     if (level < 75) return 2

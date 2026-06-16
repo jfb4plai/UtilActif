@@ -38,4 +38,16 @@ describe('getMonsterLevel', () => {
       expect(getMonsterLevel(80, null)).toBe(3)
     })
   })
+
+  describe('threshold invalide (0 ou null ou undefined)', () => {
+    it('traite threshold=0 comme libre (pas de seuil)', () => {
+      expect(getMonsterLevel(10, 0)).toBe(0)
+      expect(getMonsterLevel(30, 0)).toBe(1)
+      expect(getMonsterLevel(80, 0)).toBe(3)
+    })
+    it('traite threshold=undefined comme libre', () => {
+      expect(getMonsterLevel(10, undefined)).toBe(0)
+      expect(getMonsterLevel(80, undefined)).toBe(3)
+    })
+  })
 })
