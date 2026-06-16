@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export function useSono() {
   const [level, setLevel] = useState(0)
@@ -42,7 +42,6 @@ export function useSono() {
       cancelAnimationFrame(rafRef.current)
       audioCtxRef.current?.close()
       streamRef.current?.getTracks().forEach((t) => t.stop())
-      setLevel(0)
     }
 
     start()
