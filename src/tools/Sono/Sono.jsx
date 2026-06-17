@@ -18,18 +18,23 @@ export function Sono({ onBack, onEditClass }) {
   const [presetId, setPresetId] = useState('groupe')
   const [alertVisible, setAlertVisible] = useState(false)
   const alertTimerRef = useRef(null)
+  const alertCooldownRef = useRef(false)
 
   const preset = PRESETS.find((p) => p.id === presetId)
   const monsterLevel = getMonsterLevel(level, preset.threshold)
   const overThreshold = preset.threshold !== null && level >= preset.threshold
 
   useEffect(() => {
-    if (overThreshold && !alertVisible) {
+    if (overThreshold && !alertCooldownRef.current) {
+      alertCooldownRef.current = true
       setAlertVisible(true)
       clearTimeout(alertTimerRef.current)
       alertTimerRef.current = setTimeout(() => setAlertVisible(false), 3000)
     }
-  }, [overThreshold, alertVisible])
+    if (!overThreshold) {
+      alertCooldownRef.current = false
+    }
+  }, [overThreshold])
 
   useEffect(() => () => clearTimeout(alertTimerRef.current), [])
 
