@@ -8,6 +8,7 @@ const TOOLS = [
   { id: 'numgrid', label: 'Grille', icon: '🔢', description: 'Nombres 1-100' },
   { id: 'turns', label: 'Tours', icon: '🙋', description: 'Parole en classe' },
   { id: 'cdu',   label: 'C·D·U', icon: '🧱', description: 'Centaines · Dizaines · Unités' },
+  { id: 'sono', label: 'Sonomètre', icon: '🎙️', description: 'Niveau sonore' },
 ]
 
 export function ToolGrid({ onSelectTool, onEditClass }) {

@@ -12,6 +12,7 @@ import { ConsigneDisplay } from './tools/ConsigneDisplay/ConsigneDisplay'
 import { NumberGrid } from './tools/NumberGrid/NumberGrid'
 import { TurnManager } from './tools/TurnManager/TurnManager'
 import { CDU } from './tools/CDU/CDU'
+import { Sono } from './tools/Sono/Sono'
 
 const TOOL_COMPONENTS = {
   timer: Timer,
@@ -21,6 +22,7 @@ const TOOL_COMPONENTS = {
   numgrid: NumberGrid,
   turns: TurnManager,
   cdu: CDU,
+  sono: Sono,
 }
 
 function AppInner() {
