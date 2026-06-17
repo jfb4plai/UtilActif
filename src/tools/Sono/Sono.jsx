@@ -7,7 +7,7 @@ import { useSono } from './useSono'
 import { getMonsterLevel } from './sonoUtils'
 
 const PRESETS = [
-  { id: 'silence',       label: 'Silence',          threshold: 20 },
+  { id: 'silence',       label: 'Silence',          threshold: 15 },
   { id: 'chuchotement',  label: 'Chuchotement',      threshold: 25 },
   { id: 'groupe',        label: 'Travail de groupe', threshold: 40 },
   { id: 'libre',         label: 'Libre',             threshold: null },
